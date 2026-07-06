@@ -362,7 +362,7 @@
       'Trap Bar Deadlift': 405,
       'Power Clean': 165
     };
-    const PROGRAM_VERSION = 'v5';
+    const PROGRAM_VERSION = 'v8';
     const computeRMHash = rms => JSON.stringify(['Squat', 'Bench Press', 'Trap Bar Deadlift', 'Power Clean'].map(k => (rms || ONE_RM)[k]));
 
     // ═══ E1RM CHECK-IN SCHEDULE ═══════════════════════════════════════════════
@@ -1348,11 +1348,153 @@
       return phases[mesoIndex] || [];
     }
 
+    // ═══ MON-THU MICRODOSE QUALITIES (Phase C only, weekNum>=28) ══════════════
+    // 5min hard cap per day · quality > volume · full recovery between reps, not
+    // metabolic work. Layered onto the existing Mon-Thu "Daily Mile only" days —
+    // does not touch Fri (squat/bench) or Sun (clean/CMJ/trap bar), the program's
+    // two remaining hard training days (job transition cut lifting to 2x/week).
+    // Gating rules, shared across all four:
+    //   - isTestWeek -> skip entirely (protect Fri/Sun test performance)
+    //   - isDeload/weekInBlock===3 -> light/technique-only fallback
+    //   - mesoIndex>=10 (Peaking1 onward, squat/bench climbing to 88-95%+1RM) ->
+    //     dampened dose, same freshness-protection logic as taper/testing
+    // Monday also de-conflicts with Sunday's own plyo tier rotation: weekInBlock===1
+    // ("W2") is the week Sunday already runs [DEEP] Depth Drop w/ Hold as plyoB —
+    // stacking a second DEEP-tier eccentric session <24h later would compound
+    // eccentric/tendon stress with minimal recovery, so Monday backs off to a
+    // MEDIUM maintenance dose that week instead of adding a second DEEP exposure.
+    function getMondayDeepPlyo(mesoIndex, isDeload, weekInBlock, isTestWeek) {
+      if (isTestWeek) return [];
+      if (isDeload || weekInBlock === 3) {
+        return [{
+          name: "[LIGHT] Ankle Pogo Hops",
+          sets: 2, reps: "8", weight: "", percent: "", completed: false,
+          notes: "Deload — recovery only, no eccentric loading · ~1min",
+          isPlyo: true, plyoTier: "LIGHT", contacts: 16
+        }];
+      }
+      if (mesoIndex >= 10) {
+        return [{
+          name: "[DEEP] Depth Drop w/ 2-sec Hold (20cm)",
+          sets: 2, reps: "3", weight: "", percent: "", completed: false,
+          notes: "Peaking dose — quality only, protect freshness for Fri/Sun · ~2min",
+          isPlyo: true, plyoTier: "DEEP", contacts: 6
+        }];
+      }
+      if (weekInBlock === 1) {
+        return [{
+          name: "[MEDIUM] CMJ (hands on hips)",
+          sets: 2, reps: "4", weight: "", percent: "", completed: false,
+          notes: "De-conflict week — Sunday already carries this block's DEEP tier (Depth Drop w/ Hold) · maintain elastic pattern only, no added eccentric load · ~2min",
+          isPlyo: true, plyoTier: "MEDIUM", contacts: 8
+        }];
+      }
+      return [{
+        name: "[DEEP] Depth Drop w/ 2-sec Hold (20-25cm)",
+        sets: 3, reps: "3", weight: "", percent: "", completed: false,
+        notes: "Microdose — step off, absorb deep, freeze 2s, no rebound · full recovery between reps · ~4min total",
+        isPlyo: true, plyoTier: "DEEP", contacts: 9
+      }];
+    }
+    function getTuesdayAccelMaxVelo(mesoIndex, isDeload, weekInBlock, isTestWeek) {
+      if (isTestWeek) return [];
+      if (isDeload || weekInBlock === 3) {
+        return [{
+          name: "Wall Drive Drill (technique only)",
+          sets: 2, reps: "6/leg", weight: "", percent: "", completed: false,
+          notes: "Deload — sub-max mechanics only, no sprinting · ~2min",
+          isSprint: true
+        }];
+      }
+      const taper = mesoIndex >= 10;
+      const isAccelWeek = weekInBlock % 2 === 0; // alternate acceleration / max velocity by week
+      if (isAccelWeek) {
+        return [{
+          name: "3-Point Start Acceleration",
+          sets: taper ? 2 : 3, reps: "10yd", weight: "", percent: "", completed: false,
+          notes: "Positive shin angle, punch first 3 steps · full recovery walk-back · ~3min",
+          isSprint: true
+        }];
+      }
+      return [{
+        name: "Build-Up to Max Velocity",
+        sets: taper ? 2 : 3, reps: "10yd build + 10yd fly", weight: "", percent: "", completed: false,
+        notes: "Tall posture, relaxed jaw/hands, quick ground contact at top speed · full recovery · ~3min",
+        isSprint: true
+      }];
+    }
+    function getWednesdayMaxVert(mesoIndex, isDeload, weekInBlock, isTestWeek, weekNum) {
+      if (isTestWeek) return [];
+      if (isDeload || weekInBlock === 3 || mesoIndex >= 10) {
+        return [{
+          name: "Step-to Jump (sub-max)",
+          sets: 2, reps: "3", weight: "", percent: "", completed: false,
+          notes: (mesoIndex >= 10 ? "Peaking" : "Deload") + " — single step-close into vertical, reduced volume · protect Fri/Sun freshness · ~2min",
+          isPlyo: true, plyoTier: "MEDIUM", contacts: 6
+        }];
+      }
+      // Rotate on weekNum (not weekInBlock) — 5 variants > the 3 weeks/meso before
+      // deload, so this spreads all of them across the program instead of only
+      // ever showing the first 3. Approach-jump family only, no static hands-on-hips CMJ.
+      const variants = [
+        { name: "Step-to Jump", notes: "Single step-close, plant both feet, explode vertical · quick ground contact into max jump" },
+        { name: "Single-Leg Approach Jump", notes: "2-3 step run-in, take off one leg, convert horizontal→vertical · unilateral power, stick landing" },
+        { name: "Double-Leg Approach Jump", notes: "2-3 step run-in, plant both feet together, max vertical · full horizontal-to-vertical conversion" },
+        { name: "Penultimate Step Focus", notes: "Exaggerate low, quick penultimate step before plant · drills the horizontal-to-vertical conversion mechanism directly" },
+        { name: "Lateral Shuffle → Vertical Jump", notes: "2 shuffle steps, plant, explode vertical · frontal-plane entry" }
+      ];
+      const v = variants[weekNum % variants.length];
+      return [{
+        name: v.name,
+        sets: 3, reps: "3", weight: "", percent: "", completed: false,
+        notes: v.notes + " · full recovery between reps · ~3-4min",
+        isPlyo: true, plyoTier: "MEDIUM", contacts: 9
+      }];
+    }
+    // Progression: 45cut (meso<=8, building) -> 90/180 combo (meso===9 only, the
+    // one meso before squat/bench %1RM climbs into Peaking) -> dampened (meso>=10).
+    // Complexity no longer escalates into the peaking blocks (meso10-11) the way
+    // it originally did — that had COD demand rising exactly as Friday's squat/bench
+    // intensity peaked (88-95%+1RM), the day before the lift that matters most.
+    function getThursdayCOD(mesoIndex, isDeload, weekInBlock, isTestWeek) {
+      if (isTestWeek) return [];
+      if (isDeload || weekInBlock === 3) {
+        return [{
+          name: "45° Cut Drill (technique only)",
+          sets: 2, reps: "3/side", weight: "", percent: "", completed: false,
+          notes: "Deload — walk-through speed, technique focus only · ~2min",
+          isCOD: true
+        }];
+      }
+      if (mesoIndex >= 10) {
+        return [{
+          name: "45° Cut Drill",
+          sets: 2, reps: "3/side", weight: "", percent: "", completed: false,
+          notes: "Peaking — quality only, protect freshness for Fri squat/bench (climbing to 88-95%+1RM) · ~2min",
+          isCOD: true
+        }];
+      }
+      if (mesoIndex <= 8) {
+        return [{
+          name: "45° Cut Drill",
+          sets: 3, reps: "3/side", weight: "", percent: "", completed: false,
+          notes: "Plant outside foot, drive off · low-moderate speed, technique priority · ~3-4min",
+          isCOD: true
+        }];
+      }
+      return [{
+        name: "90°/180° Cut Combo",
+        sets: 3, reps: "3/side", weight: "", percent: "", completed: false,
+        notes: "Decelerate → stick → redirect · moderate-high speed, control > speed · full recovery · one meso only before peaking dampens it back down · ~4min",
+        isCOD: true
+      }];
+    }
+
     // ═══ PHASE C SESSION GENERATOR (Weeks 27-56, July 6, 2026+) ═══════════════
     // 2 days/week schedule (from July 8, 2026): Fri + Sun lifting · Daily Mile every day.
     // Fri: Squat + Bench + RDL + Face Pulls (35 min)
     // Sun: Explosive starts + Power Clean + CMJ Plyos (PAP) + Trap Bar DL + Row (38 min)
-    // Mon-Thu = Daily Mile only · Sat = Gameday + Daily Mile
+    // Mon-Thu = Daily Mile + 5min microdosed quality work (plyo/accel/vert/COD) · Sat = Gameday + Daily Mile
     function generatePhaseCSessions(weekNum, mesoIndex, isDeload, weekInBlock, currentRMs) {
       // currentRMs: live e1RM dictionary; falls back to ONE_RM constant on initial generation
       currentRMs = currentRMs || ONE_RM;
@@ -1564,11 +1706,14 @@
         mileage: 1, isRun: true
       });
 
-      // ─── Days 1-4 (Mon-Thu): Daily Mile only ───────────────────
-      const monExercises = [mkMile()];
-      const tueExercises = [mkMile()];
-      const wedExercises = [mkMile()];
-      const thuExercises = [mkMile()];
+      // ─── Days 1-4 (Mon-Thu): 5min microdose quality work + Daily Mile ──
+      // Microdosing starts week 28 — week 27 already spans the Jul 8 schedule change
+      // mid-week, so it keeps running as plain Daily-Mile-only through its end.
+      const microdoseActive = weekNum >= 28;
+      const monExercises = [...(microdoseActive ? getMondayDeepPlyo(mesoIndex, isDeload, weekInBlock, isTestWeek) : []), mkMile()];
+      const tueExercises = [...(microdoseActive ? getTuesdayAccelMaxVelo(mesoIndex, isDeload, weekInBlock, isTestWeek) : []), mkMile()];
+      const wedExercises = [...(microdoseActive ? getWednesdayMaxVert(mesoIndex, isDeload, weekInBlock, isTestWeek, weekNum) : []), mkMile()];
+      const thuExercises = [...(microdoseActive ? getThursdayCOD(mesoIndex, isDeload, weekInBlock, isTestWeek) : []), mkMile()];
 
       // ─── Day 5 (Friday): Strength — Squat · Bench · RDL · 35 min
       const rdlWeight = Math.round(currentRMs['Trap Bar Deadlift'] * 0.50 / 5) * 5;
@@ -1636,25 +1781,25 @@
       }];
 
       return [{
-        name: "Daily Mile Only",
+        name: microdoseActive ? "Deep Plyo Microdose + Daily Mile" : "Daily Mile Only",
         day: "Monday",
         exercises: monExercises,
-        notes: "No lift · Daily Mile only · active recovery"
+        notes: microdoseActive ? "No lift · 5min deep-tier plyo (eccentric absorption) + Daily Mile" : "No lift · Daily Mile only · active recovery"
       }, {
-        name: "Daily Mile Only",
+        name: microdoseActive ? "Accel/Max Velo Microdose + Daily Mile" : "Daily Mile Only",
         day: "Tuesday",
         exercises: tueExercises,
-        notes: "No lift · Daily Mile only · active recovery"
+        notes: microdoseActive ? "No lift · 5min sprint mechanics (alternates accel/max velocity by week) + Daily Mile" : "No lift · Daily Mile only · active recovery"
       }, {
-        name: "Daily Mile Only",
+        name: microdoseActive ? "Max Vert Microdose + Daily Mile" : "Daily Mile Only",
         day: "Wednesday",
         exercises: wedExercises,
-        notes: "No lift · Daily Mile only · active recovery"
+        notes: microdoseActive ? "No lift · 5min max vertical jump (varied approach entries) + Daily Mile" : "No lift · Daily Mile only · active recovery"
       }, {
-        name: "Daily Mile Only",
+        name: microdoseActive ? "COD Microdose + Daily Mile" : "Daily Mile Only",
         day: "Thursday",
         exercises: thuExercises,
-        notes: "No lift · Daily Mile only · active recovery"
+        notes: microdoseActive ? "No lift · 5min change-of-direction drills + Daily Mile" : "No lift · Daily Mile only · active recovery"
       }, {
         name: "Day 1: Strength — Squat + Bench",
         day: "Friday",
@@ -2854,6 +2999,18 @@
       }
       // Step 2: ALWAYS fix goals (remove Half Marathon, add 5K Race)
       migrateGoals(savedData);
+      // Step 1b: ALWAYS refresh phase/focus/trainingEmphasis labels from mesocycles —
+      // these aren't touched by migratePlyoSprint's versionMatch gate, so stale names
+      // from old code (e.g. a leftover "Mile Specific Block" label from before mile
+      // time was dropped as a goal) would otherwise persist in synced data forever.
+      savedData.weeks.forEach(week => {
+        const meso = mesocycles[week.mesocycle - 1];
+        if (meso) {
+          week.phase = meso.name;
+          week.focus = meso.focus;
+          week.trainingEmphasis = meso.trainingEmphasis;
+        }
+      });
       // Step 2b: Ensure e1RM history exists (seed from current oneRepMaxes if missing)
       migrate1RMHistory(savedData);
       // Step 2c: Ensure sleepLog exists (recovery tracking)
