@@ -2,329 +2,482 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Distance Converter · Chase Chavez PT, DPT, SCS</title>
+<meta name="description" content="7-unit metric and imperial distance converter by Chase Chavez PT, DPT, SCS.">
+
+<!-- PWA -->
+<meta name="theme-color" content="#005F87">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Distance">
+<link rel="manifest" href="distance-converter-manifest.json">
+<link rel="apple-touch-icon" href="icons/node-mark.svg">
+
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --blue:      #005F87;
-    --teal:      #00A3A3;
-    --slate:     #565A5C;
-    --offwhite:  #F5F4F2;
-    --nearblack: #141414;
-    --border:    #d8d4ce;
-    --card:      #ffffff;
-    --active-bg: #eef6fa;
-    --muted:     #8e9194;
-  }
+:root {
+  --blue:      #005F87;
+  --blue-dark: #004668;
+  --teal:      #00A3A3;
+  --slate:     #565A5C;
+  --offwhite:  #F5F4F2;
+  --rule:      #E0DFDC;
+  --dark:      #141414;
+  --white:     #FFFFFF;
+  --border:    #d8d4ce;
+  --active-bg: #EEF6FA;
+  --muted:     #8E9194;
+}
 
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-    background: var(--offwhite);
-    color: var(--nearblack);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px 64px;
-  }
+html, body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--offwhite);
+  color: var(--dark);
+  min-height: 100%;
+}
 
-  /* ── Header ── */
-  .header {
-    width: 100%;
-    max-width: 520px;
-    margin-bottom: 32px;
-  }
+/* ── Cover Header ──────────────────────────────────────────── */
+.cover-header {
+  background: var(--dark);
+  border-bottom: 3px solid var(--teal);
+  padding: 28px 24px;
+  padding-top: calc(28px + env(safe-area-inset-top, 0px));
+}
 
-  .brand-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 22px;
-  }
+.cover-inner {
+  max-width: 520px;
+  margin: 0 auto;
+}
 
-  .node-mark { flex-shrink: 0; }
+/* Lockup C — Horizontal, reversed on dark */
+.horiz-lockup {
+  display: flex;
+  align-items: center;
+}
 
-  .wordmark {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-  .wordmark-name {
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--blue);
-    letter-spacing: 0.5px;
-    line-height: 1.1;
-  }
-  .wordmark-creds {
-    font-weight: 700;
-    font-size: 0.72rem;
-    color: var(--teal);
-    line-height: 1;
-  }
-  .wordmark-rule {
-    width: 32px;
-    height: 1.5px;
-    background: var(--teal);
-    margin: 4px 0 3px;
-  }
-  .wordmark-title {
-    font-weight: 400;
-    font-size: 0.6rem;
-    color: var(--slate);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  }
+.node-mark-svg { flex-shrink: 0; }
 
-  .tool-heading {
-    border-top: 1px solid var(--border);
-    padding-top: 18px;
-  }
-  .tool-heading h1 {
-    font-weight: 700;
-    font-size: 1.25rem;
-    color: var(--blue);
-    margin-bottom: 4px;
-  }
-  .tool-heading p {
-    font-size: 0.78rem;
-    color: var(--slate);
-  }
+.lockup-divider {
+  width: 1.5px;
+  height: 46px;
+  background: rgba(255,255,255,0.2);
+  margin: 0 20px;
+  flex-shrink: 0;
+}
 
-  /* ── Wrapper ── */
-  .wrapper { width: 100%; max-width: 520px; }
+.wordmark { display: flex; flex-direction: column; }
+.wm-name {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--white);
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+}
+.wm-creds {
+  font-weight: 700;
+  font-size: 10px;
+  color: var(--teal);
+  letter-spacing: 3px;
+  margin-top: 4px;
+}
+.wm-teal-rule {
+  width: 24px;
+  height: 1.5px;
+  background: var(--teal);
+  margin: 7px 0 5px;
+}
+.wm-title {
+  font-size: 8px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  line-height: 1.4;
+}
 
-  /* ── Filter tabs ── */
-  .tabs {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 16px;
-  }
-  .tab {
-    flex: 1;
-    background: white;
-    border: 1.5px solid var(--border);
-    border-radius: 6px;
-    color: var(--slate);
-    font-weight: 700;
-    font-size: 0.68rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 9px 4px;
-    cursor: pointer;
-    transition: border-color 0.14s, color 0.14s, background 0.14s;
-    text-align: center;
-  }
-  .tab:hover { border-color: var(--blue); color: var(--blue); }
-  .tab.on {
-    border-color: var(--blue);
-    background: var(--blue);
-    color: white;
-  }
+/* ── Tool Band ─────────────────────────────────────────────── */
+.tool-band {
+  background: var(--blue);
+  padding: 0;
+}
 
-  /* ── Group label ── */
-  .group-label {
-    font-weight: 700;
-    font-size: 0.6rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 18px 0 8px 2px;
-  }
+.tool-band-inner {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 11px 24px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
 
-  /* ── Unit card ── */
-  .unit-card {
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    padding: 13px 16px;
-    margin-bottom: 7px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    cursor: pointer;
-    transition: border-color 0.14s, background 0.14s;
-    position: relative;
-  }
-  .unit-card:hover { border-color: var(--blue); }
-  .unit-card.active {
-    border-color: var(--teal);
-    background: var(--active-bg);
-  }
-  .unit-card.active::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 50%;
-    transform: translateY(-50%);
-    height: 52%; width: 3px;
-    background: var(--teal);
-    border-radius: 0 2px 2px 0;
-  }
-  .unit-card.hidden { display: none; }
+.band-eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+}
 
-  .unit-label {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    min-width: 90px;
-  }
-  .unit-abbr {
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--blue);
-    line-height: 1;
-  }
-  .unit-card.active .unit-abbr { color: var(--teal); }
+.band-sep {
+  color: var(--teal);
+  margin: 0 10px;
+  font-size: 11px;
+  opacity: 0.7;
+}
 
-  .unit-name {
-    font-size: 0.63rem;
-    color: var(--slate);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
+.band-tool-name {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.9);
+}
 
-  .unit-tag {
-    display: inline-block;
-    font-weight: 700;
-    font-size: 0.52rem;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    padding: 2px 5px;
-    border-radius: 3px;
-    margin-top: 2px;
-  }
-  .tag-metric   { background: #d6eef5; color: var(--blue); }
-  .tag-imperial { background: #d6f2f2; color: #007a7a; }
+/* ── Tool Intro ────────────────────────────────────────────── */
+.tool-intro {
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto 24px;
+}
 
-  .input-area { flex: 1; }
-  .input-area input {
-    width: 100%;
-    background: transparent;
-    border: none; outline: none;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--nearblack);
-    text-align: right;
-    caret-color: var(--teal);
-    padding: 0;
-    /* Hide browser spin buttons */
-    -moz-appearance: textfield;
-  }
-  .input-area input::-webkit-outer-spin-button,
-  .input-area input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  .input-area input::placeholder {
-    color: var(--border);
-    font-weight: 400;
-  }
-  .input-area input:read-only {
-    cursor: pointer;
-    color: var(--muted);
-    font-weight: 400;
-    font-size: 1.05rem;
-  }
-  .unit-card.active .input-area input {
-    color: var(--nearblack);
-    font-weight: 700;
-  }
+.intro-eyebrow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 8px;
+}
 
-  /* ── Bottom ── */
-  .bottom {
-    display: flex;
-    gap: 8px;
-    margin-top: 18px;
-  }
-  .reset-btn {
-    flex: 1;
-    background: transparent;
-    border: 1.5px solid var(--border);
-    border-radius: 6px;
-    color: var(--slate);
-    font-weight: 700;
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 11px;
-    cursor: pointer;
-    transition: border-color 0.14s, color 0.14s;
-  }
-  .reset-btn:hover { border-color: var(--blue); color: var(--blue); }
+.tool-intro h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--blue);
+  line-height: 1.1;
+  margin-bottom: 5px;
+}
 
-  /* ── Footer ── */
-  .footer {
-    width: 100%;
-    max-width: 520px;
-    margin-top: 32px;
-    border-top: 1px solid var(--border);
-    padding-top: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .footer-left { font-size: 0.65rem; color: var(--muted); }
-  .footer-tagline { font-style: italic; font-size: 0.72rem; color: var(--teal); }
+.tool-intro p {
+  font-size: 13px;
+  color: var(--slate);
+  line-height: 1.5;
+}
 
-  @media (max-width: 380px) {
-    .unit-label { min-width: 70px; }
-    .input-area input { font-size: 1rem; }
-  }
+/* ── Main body ─────────────────────────────────────────────── */
+.tool-main {
+  background: var(--offwhite);
+  padding: 28px 20px 72px;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+}
+
+.tool-wrapper {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* ── Filter tabs ───────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  flex: 1;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  color: var(--slate);
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 9px 4px;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+  text-align: center;
+}
+.tab:hover { border-color: var(--blue); color: var(--blue); }
+.tab.on {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: var(--white);
+}
+
+/* ── Group label ───────────────────────────────────────────── */
+.group-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 20px 0 9px 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.group-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* ── Unit card ─────────────────────────────────────────────── */
+.unit-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  padding: 13px 16px;
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, box-shadow 0.12s;
+  position: relative;
+  outline: none;
+}
+.unit-card:hover { border-color: var(--blue); }
+.unit-card:focus-visible { box-shadow: 0 0 0 2.5px rgba(0,95,135,0.3); }
+
+.unit-card.active {
+  border-color: var(--teal);
+  background: var(--active-bg);
+}
+.unit-card.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  height: 50%;
+  width: 3px;
+  background: var(--teal);
+  border-radius: 0 2px 2px 0;
+}
+.unit-card.hidden { display: none; }
+
+/* ── Card label column ─────────────────────────────────────── */
+.unit-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 86px;
+}
+
+.unit-abbr {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--blue);
+  line-height: 1;
+}
+.unit-card.active .unit-abbr { color: var(--teal); }
+
+.unit-name {
+  font-size: 0.6rem;
+  color: var(--slate);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.unit-tag {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.5rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: 2px;
+  margin-top: 3px;
+}
+.tag-metric   { background: #d6eef5; color: var(--blue); }
+.tag-imperial { background: #d6f2f2; color: #007a7a; }
+
+/* ── Value input ───────────────────────────────────────────── */
+.input-area { flex: 1; }
+
+.input-area input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--dark);
+  text-align: right;
+  caret-color: var(--teal);
+  padding: 0;
+  -moz-appearance: textfield;
+}
+.input-area input::-webkit-outer-spin-button,
+.input-area input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.input-area input::placeholder { color: var(--border); font-weight: 400; }
+
+.input-area input:read-only {
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 1.05rem;
+}
+.unit-card.active .input-area input {
+  color: var(--dark);
+  font-weight: 700;
+}
+
+/* ── Reset button ──────────────────────────────────────────── */
+.bottom { margin-top: 20px; }
+
+.reset-btn {
+  width: 100%;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  color: var(--slate);
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 12px;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+}
+.reset-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+/* ── Footer ────────────────────────────────────────────────── */
+.brand-footer {
+  background: #0A0A0A;
+  padding: 22px 24px;
+  padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.footer-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.5px;
+}
+
+.footer-meta {
+  font-size: 9px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 1px;
+}
+
+.footer-version {
+  font-size: 9px;
+  color: var(--teal);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 380px) {
+  .unit-label { min-width: 68px; }
+  .input-area input { font-size: 1rem; }
+  .wm-name { font-size: 14px; }
+  .lockup-divider { margin: 0 14px; }
+}
 </style>
 </head>
 <body>
 
-<!-- ── Header ── -->
-<div class="header">
-  <div class="brand-row">
-    <svg class="node-mark" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <line x1="22" y1="22" x2="22" y2="6"  stroke="#005F87" stroke-width="2.2" stroke-linecap="round"/>
-      <line x1="22" y1="22" x2="8"  y2="34" stroke="#005F87" stroke-width="2.2" stroke-linecap="round"/>
-      <line x1="22" y1="22" x2="36" y2="34" stroke="#005F87" stroke-width="2.2" stroke-linecap="round"/>
-      <circle cx="22" cy="22" r="3.2" fill="#005F87"/>
-      <circle cx="22" cy="6"  r="4"   fill="#00A3A3"/>
-      <circle cx="8"  cy="34" r="4"   fill="#00A3A3"/>
-      <circle cx="36" cy="34" r="4"   fill="#00A3A3"/>
-    </svg>
-    <div class="wordmark">
-      <span class="wordmark-name">Chase Chavez</span>
-      <span class="wordmark-creds">PT, DPT, SCS</span>
-      <div class="wordmark-rule"></div>
-      <span class="wordmark-title">Board-Certified Sports Physical Therapist</span>
+<!-- ── Cover Header ── -->
+<header class="cover-header">
+  <div class="cover-inner">
+    <!-- Lockup C — Horizontal reversed on dark (brand system §02) -->
+    <div class="horiz-lockup">
+      <svg class="node-mark-svg" width="52" height="52" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <line x1="100" y1="108" x2="100" y2="44"  stroke="white"     stroke-width="6.5" stroke-linecap="round"/>
+        <line x1="100" y1="108" x2="45"  y2="139" stroke="white"     stroke-width="6.5" stroke-linecap="round"/>
+        <line x1="100" y1="108" x2="155" y2="139" stroke="white"     stroke-width="6.5" stroke-linecap="round"/>
+        <circle cx="100" cy="44"  r="9"  fill="#00A3A3"/>
+        <circle cx="45"  cy="139" r="9"  fill="#00A3A3"/>
+        <circle cx="155" cy="139" r="9"  fill="#00A3A3"/>
+        <circle cx="100" cy="108" r="13" fill="white"/>
+      </svg>
+
+      <div class="lockup-divider" aria-hidden="true"></div>
+
+      <div class="wordmark">
+        <span class="wm-name">Chase Chavez</span>
+        <span class="wm-creds">PT, DPT, SCS</span>
+        <div class="wm-teal-rule" aria-hidden="true"></div>
+        <span class="wm-title">Board-Certified Sports Physical Therapist</span>
+      </div>
     </div>
   </div>
-  <div class="tool-heading">
-    <h1>Distance Converter</h1>
-    <p>Select any unit, enter a value — all 7 units update instantly.</p>
+</header>
+
+<!-- ── Tool Band ── -->
+<div class="tool-band" aria-hidden="true">
+  <div class="tool-band-inner">
+    <span class="band-eyebrow">Clinical Tools</span>
+    <span class="band-sep">·</span>
+    <span class="band-tool-name">Distance Converter</span>
   </div>
 </div>
 
-<!-- ── App ── -->
-<div class="wrapper">
-  <div class="tabs" role="tablist" aria-label="Unit filter">
-    <button class="tab on" data-filter="all"      role="tab" aria-selected="true">All Units</button>
-    <button class="tab"    data-filter="metric"   role="tab" aria-selected="false">Metric</button>
-    <button class="tab"    data-filter="imperial" role="tab" aria-selected="false">Imperial</button>
-  </div>
+<!-- ── Main ── -->
+<main class="tool-main">
+  <div class="tool-wrapper">
 
-  <div id="cards"></div>
+    <!-- Intro -->
+    <div class="tool-intro">
+      <div class="intro-eyebrow">Distance Conversion</div>
+      <h1>Distance Converter</h1>
+      <p>Select any unit and enter a value — all 7 units update instantly.</p>
+    </div>
 
-  <div class="bottom">
-    <button class="reset-btn" id="resetBtn">&#x21BA; &nbsp; Reset All</button>
+    <!-- Filter tabs -->
+    <div class="tabs" role="tablist" aria-label="Unit system filter">
+      <button class="tab on" data-filter="all"      role="tab" aria-selected="true">All Units</button>
+      <button class="tab"    data-filter="metric"   role="tab" aria-selected="false">Metric</button>
+      <button class="tab"    data-filter="imperial" role="tab" aria-selected="false">Imperial</button>
+    </div>
+
+    <!-- Cards -->
+    <div id="cards"></div>
+
+    <!-- Reset -->
+    <div class="bottom">
+      <button class="reset-btn" id="resetBtn">&#x21BA;&nbsp;&nbsp;Reset All</button>
+    </div>
+
   </div>
-</div>
+</main>
 
 <!-- ── Footer ── -->
-<div class="footer">
-  <span class="footer-left">7 units · metric &amp; imperial</span>
-  <span class="footer-tagline">Build what stays.</span>
-</div>
+<footer class="brand-footer">
+  <div class="footer-left">
+    <span class="footer-name">Chase Chavez PT, DPT, SCS</span>
+    <span class="footer-meta">chasechavezdpt@gmail.com</span>
+  </div>
+  <span class="footer-version">Distance&nbsp;·&nbsp;v1.0&nbsp;·&nbsp;2026</span>
+</footer>
 
 <script>
 'use strict';
 
-// Each unit's factor is meters-per-unit.
-// Convert to meters:   value * factor
-// Convert from meters: meters / factor
+// factor = meters per unit
 const UNITS = [
   { key:'cm', abbr:'cm', name:'Centimeters', system:'metric',   factor: 0.01      },
   { key:'m',  abbr:'m',  name:'Meters',      system:'metric',   factor: 1         },
@@ -335,37 +488,32 @@ const UNITS = [
   { key:'mi', abbr:'mi', name:'Miles',       system:'imperial', factor: 1609.344  },
 ];
 
-// Cached DOM refs: key -> { card, input }
+// Cached DOM refs built once: key -> { card, input }
 const els = new Map();
 
-let activeKey = 'm';
+let activeKey  = 'm';
 let activeUnit = UNITS.find(u => u.key === 'm');
 let currentFilter = 'all';
 
-// Format a number for display — strips unnecessary trailing zeros,
-// falls back to exponential for very large/small values.
 function fmt(n) {
   if (!Number.isFinite(n)) return '';
   if (n === 0) return '0';
   const abs = Math.abs(n);
   if (abs >= 1e15 || abs < 1e-9) return n.toExponential(4);
-  // toPrecision(10) then parse back strips trailing zeros
   return String(+n.toPrecision(10));
 }
 
-// ── Build DOM (called once) ─────────────────────────────────────────────────
+// ── Build DOM once ─────────────────────────────────────────────────────────
 
 function buildCards() {
   const container = document.getElementById('cards');
   container.innerHTML = '';
   els.clear();
 
-  const groups = [
+  [
     { label: 'Metric',        system: 'metric'   },
     { label: 'Imperial / US', system: 'imperial' },
-  ];
-
-  groups.forEach(({ label, system }) => {
+  ].forEach(({ label, system }) => {
     const gl = document.createElement('div');
     gl.className = 'group-label';
     gl.textContent = label;
@@ -391,24 +539,20 @@ function buildCards() {
         `</div>` +
         `<div class="input-area">` +
           `<input id="input-${u.key}" type="number" inputmode="decimal"` +
-          ` placeholder="—" autocomplete="off"` +
-          `${isActive ? '' : ' readonly'}/>` +
+          ` placeholder="—" autocomplete="off"${isActive ? '' : ' readonly'}/>` +
         `</div>`;
 
       container.appendChild(card);
-
-      const input = card.querySelector('input');
-      els.set(u.key, { card, input });
+      els.set(u.key, { card, input: card.querySelector('input') });
     });
   });
 
-  // Single delegated listener for card clicks
+  // Single delegated listener for all card interactions
   container.addEventListener('click', e => {
     const card = e.target.closest('.unit-card');
     if (card) activateUnit(card.dataset.key);
   });
 
-  // Keyboard activation (Enter / Space) for accessibility
   container.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') {
       const card = e.target.closest('.unit-card');
@@ -416,31 +560,27 @@ function buildCards() {
     }
   });
 
-  els.get(activeKey).input.addEventListener('input', onInput);
-  els.get(activeKey).input.focus();
+  const active = els.get(activeKey);
+  active.input.addEventListener('input', onInput);
+  active.input.focus();
 }
 
-// ── Activate a unit ──────────────────────────────────────────────────────────
+// ── Switch active unit (no DOM rebuild) ───────────────────────────────────
 
 function activateUnit(key) {
-  if (key === activeKey) {
-    els.get(key).input.focus();
-    return;
-  }
+  if (key === activeKey) { els.get(key).input.focus(); return; }
 
-  // Capture current value in meters before switching
   const prevVal = parseFloat(els.get(activeKey).input.value);
-  const meters = Number.isFinite(prevVal) ? prevVal * activeUnit.factor : NaN;
+  const meters  = Number.isFinite(prevVal) ? prevVal * activeUnit.factor : NaN;
 
-  // Deactivate previous
   const prev = els.get(activeKey);
   prev.card.classList.remove('active');
   prev.input.readOnly = true;
   prev.input.removeEventListener('input', onInput);
 
-  // Activate new
-  activeKey = key;
+  activeKey  = key;
   activeUnit = UNITS.find(u => u.key === key);
+
   const next = els.get(key);
   next.card.classList.add('active');
   next.input.readOnly = false;
@@ -452,12 +592,11 @@ function activateUnit(key) {
   }
 
   next.input.focus();
-  // Place cursor at end of value
   const len = next.input.value.length;
   next.input.setSelectionRange(len, len);
 }
 
-// ── Conversions ──────────────────────────────────────────────────────────────
+// ── Conversion helpers ─────────────────────────────────────────────────────
 
 function fillOthers(meters) {
   UNITS.forEach(u => {
@@ -480,14 +619,12 @@ function onInput(e) {
   fillOthers(val * activeUnit.factor);
 }
 
-// ── Reset ────────────────────────────────────────────────────────────────────
-
 function resetAll() {
   els.forEach(({ input }) => { input.value = ''; });
   els.get(activeKey).input.focus();
 }
 
-// ── Filter tabs ──────────────────────────────────────────────────────────────
+// ── Filter ─────────────────────────────────────────────────────────────────
 
 function setFilter(f) {
   currentFilter = f;
@@ -496,15 +633,9 @@ function setFilter(f) {
     t.classList.toggle('on', on);
     t.setAttribute('aria-selected', on);
   });
-
   UNITS.forEach(u => {
-    els.get(u.key).card.classList.toggle(
-      'hidden',
-      f !== 'all' && u.system !== f
-    );
+    els.get(u.key).card.classList.toggle('hidden', f !== 'all' && u.system !== f);
   });
-
-  // Hide group labels when all their children are hidden
   document.querySelectorAll('.group-label').forEach(gl => {
     let sib = gl.nextElementSibling;
     let visible = false;
@@ -516,7 +647,7 @@ function setFilter(f) {
   });
 }
 
-// ── Wire up tabs & reset ─────────────────────────────────────────────────────
+// ── Init ───────────────────────────────────────────────────────────────────
 
 document.querySelectorAll('.tab').forEach(btn => {
   btn.addEventListener('click', () => setFilter(btn.dataset.filter));
@@ -524,9 +655,12 @@ document.querySelectorAll('.tab').forEach(btn => {
 
 document.getElementById('resetBtn').addEventListener('click', resetAll);
 
-// ── Init ─────────────────────────────────────────────────────────────────────
-
 buildCards();
+
+// Register service worker for offline support
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
 </script>
 </body>
 </html>

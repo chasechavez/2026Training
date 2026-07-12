@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="38" fill="#005F87"/>
+  <!-- Arms -->
+  <line x1="96" y1="102" x2="96"  y2="51"  stroke="white" stroke-width="7" stroke-linecap="round"/>
+  <line x1="96" y1="102" x2="52"  y2="127" stroke="white" stroke-width="7" stroke-linecap="round"/>
+  <line x1="96" y1="102" x2="140" y2="127" stroke="white" stroke-width="7" stroke-linecap="round"/>
+  <!-- Terminal nodes — Performance Teal -->
+  <circle cx="96"  cy="51"  r="10" fill="#00A3A3"/>
+  <circle cx="52"  cy="127" r="10" fill="#00A3A3"/>
+  <circle cx="140" cy="127" r="10" fill="#00A3A3"/>
+  <!-- Hub -->
+  <circle cx="96" cy="102" r="14" fill="white"/>
+</svg>

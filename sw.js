@@ -7,7 +7,10 @@ const CACHE_NAME = 'chase-training-2026-v1';
 const PRECACHE_URLS = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './distance-converter.html',
+  './distance-converter-manifest.json',
+  './icons/node-mark.svg'
 ];
 
 // External CDN scripts — cache on first use

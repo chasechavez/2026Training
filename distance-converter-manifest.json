@@ -1,0 +1,27 @@
+{
+  "name": "Distance Converter – Chase Chavez PT, DPT, SCS",
+  "short_name": "Distance",
+  "description": "7-unit metric & imperial distance converter. Select any unit — all values update instantly.",
+  "start_url": "./distance-converter.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#005F87",
+  "background_color": "#005F87",
+  "lang": "en-US",
+  "categories": ["health", "utilities", "medical"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='38' fill='%23005F87'/><line x1='96' y1='102' x2='96' y2='51' stroke='white' stroke-width='7' stroke-linecap='round'/><line x1='96' y1='102' x2='52' y2='127' stroke='white' stroke-width='7' stroke-linecap='round'/><line x1='96' y1='102' x2='140' y2='127' stroke='white' stroke-width='7' stroke-linecap='round'/><circle cx='96' cy='51' r='10' fill='%2300A3A3'/><circle cx='52' cy='127' r='10' fill='%2300A3A3'/><circle cx='140' cy='127' r='10' fill='%2300A3A3'/><circle cx='96' cy='102' r='14' fill='white'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%23005F87'/><line x1='256' y1='273' x2='256' y2='138' stroke='white' stroke-width='14' stroke-linecap='round'/><line x1='256' y1='273' x2='141' y2='338' stroke='white' stroke-width='14' stroke-linecap='round'/><line x1='256' y1='273' x2='372' y2='338' stroke='white' stroke-width='14' stroke-linecap='round'/><circle cx='256' cy='138' r='20' fill='%2300A3A3'/><circle cx='141' cy='338' r='20' fill='%2300A3A3'/><circle cx='372' cy='338' r='20' fill='%2300A3A3'/><circle cx='256' cy='273' r='28' fill='white'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
